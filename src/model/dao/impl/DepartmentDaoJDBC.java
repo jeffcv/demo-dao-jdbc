@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
@@ -51,7 +52,6 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
 	@Override
 	public void update(Department obj) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -66,40 +66,64 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			st = conn.prepareStatement(
-					"SELECT * FROM department "
-					+ "WHERE Id = ?");
-			
+			st = conn.prepareStatement("SELECT * FROM department " + "WHERE Id = ?");
+
 			st.setInt(1, id);
 			rs = st.executeQuery();
-			
-			  if (rs.next()) { 
-				  Department dep = instantiateDepartment(rs); 
-				  return dep; }
-			  
+
+			if (rs.next()) {
+				Department dep = instantiateDepartment(rs);
+				return dep;
+			}
+
 			return null;
-			
+
 		} catch (SQLException e) {
 			throw new DbExceptions(e.getMessage());
-			
+
 		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
 	}
-	
+
 	private Department instantiateDepartment(ResultSet rs) throws SQLException {
 		Department dep = new Department();
 		dep.setId(rs.getInt("Id"));
 		dep.setName(rs.getString("Name"));
 
 		return dep;
-	}
+}
 
 	@Override
 	public List<Department> findAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-}
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement(
+					"SELECT * FROM department ORDER BY Name");
+
+			rs = st.executeQuery();
+
+			List<Department> list = new ArrayList<>();
+			
+
+			while (rs.next()) {
+				Department obj = new Department();
+					obj.setId(rs.getInt("Id"));
+					obj.setName(rs.getString("Name"));
+					list.add(obj);
+				}
+			return list;
+		
+		}catch (SQLException e) {
+				throw new DbExceptions(e.getMessage());
+			}
+		
+			finally {
+				DB.closeStatement(st);
+				DB.closeResultSet(rs);
+			}
+		}
+	}
